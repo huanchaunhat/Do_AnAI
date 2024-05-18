@@ -1,11 +1,7 @@
 import cv2
-import streamlit
 import numpy as np
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
-from threading import Thread
-from PIL import Image, ImageTk
+import streamlit as st
+from PIL import Image
 
 # Initialize global variables
 cap = None
@@ -20,11 +16,11 @@ def center_handle(x, y, w, h):
     cy = y + y1
     return cx, cy
 
+# Process video function
 def process_video():
-    global cap, running, count, frame_label
+    global cap, running, count
     min_width_react = 80
     min_height_react = 80
-    learning_rate = 1.0 / 100
     count_line_position = 550
     algo = cv2.bgsegm.createBackgroundSubtractorMOG()
     detect = []
@@ -68,48 +64,35 @@ def process_video():
 
         cv2.putText(resize_video, "Vehicle Counter :" + str(count), (450, 70), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 5)
 
-        # Convert the frame to an image that Tkinter can use
+        # Convert the frame to an image that Streamlit can use
         rgb_image = cv2.cvtColor(resize_video, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(rgb_image)
-        imgtk = ImageTk.PhotoImage(image=img)
-        
-        # Update the label with the new image
-        frame_label.imgtk = imgtk
-        frame_label.configure(image=imgtk)
-        frame_label.image = imgtk
 
-        if cv2.waitKey(10) == 27:
+        # Display the frame in Streamlit
+        st.image(img)
+
+        if not running:
             break
 
     cap.release()
-    cv2.destroyAllWindows()
-    running = False
 
-def start_processing():
-    global cap, running
-    if not running:
-        file_path = 'video.mp4'
-        if file_path:
-            cap = cv2.VideoCapture(file_path)
-            if not cap.isOpened():
-                messagebox.showerror("Error", "Could not open video file")
-                return
+# Streamlit UI setup
+st.title("Vehicle Counter")
+
+# Upload video file
+uploaded_file = st.file_uploader("Choose a video file", type=["mp4"])
+
+if uploaded_file is not None:
+    # Start processing button
+    if st.button("Start Processing"):
+        cap = 'video.mp4'
+        if not cap.isOpened():
+            st.error("Could not open video file")
+        else:
             running = True
-            process_thread = Thread(target=process_video)
-            process_thread.start()
+            process_video()
 
-# Create the main window
-root = tk.Tk()
-root.title("Vehicle Counter")
-root.geometry("1100x800")
-
-# Create buttons
-start_button = tk.Button(root, text="Start", command=start_processing)
-start_button.pack(pady=20)
-
-# Create a label to display the video
-frame_label = tk.Label(root)
-frame_label.pack()
-
-# Run the Tkinter event loop
-root.mainloop()
+# Stop processing button
+if st.button("Stop Processing"):
+    running = False
+    st.write("Processing stopped.")
