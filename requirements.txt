@@ -7,3 +7,4 @@ yfinance
 pandas-datareader
 prophet
 opencv-python-headless
+libtk8.6
