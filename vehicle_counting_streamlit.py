@@ -17,7 +17,7 @@ def center_handle(x, y, w, h):
     return cx, cy
 
 # Process video function
-def process_video():
+def process_video(file_path):
     global cap, running, count
     min_width_react = 80
     min_height_react = 80
@@ -26,6 +26,7 @@ def process_video():
     detect = []
     offset = 6  # Do sai tren pixel
 
+    cap = cv2.VideoCapture(file_path)
     while running:
         ret, frame = cap.read()
         if not ret:
@@ -75,6 +76,7 @@ def process_video():
             break
 
     cap.release()
+    running = False
 
 # Streamlit UI setup
 st.title("Vehicle Counter")
@@ -85,14 +87,9 @@ uploaded_file = st.file_uploader("Choose a video file", type=["mp4"])
 if uploaded_file is not None:
     # Start processing button
     if st.button("Start Processing"):
-        cap = 'video.mp4'
-        if not cap.isOpened():
-            st.error("Could not open video file")
+        if running:
+            running = False
+            st.write("Processing stopped.")
         else:
             running = True
-            process_video()
-
-# Stop processing button
-if st.button("Stop Processing"):
-    running = False
-    st.write("Processing stopped.")
+            process_video(uploaded_file.name)
