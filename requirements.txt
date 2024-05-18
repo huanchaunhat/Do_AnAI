@@ -1,9 +1,13 @@
 numpy==1.26.4
-Pillow==10.3.0
-pandas
-plotly
+easyocr
 streamlit
-yfinance
-pandas-datareader
-prophet
-opencv-python-headless
+opencv-python-headless==4.5.5.64
+Pillow
+mmdet
+mmocr
+paddleocr
+paddlepaddle
+mycolorpy
+plotly
+plotly-express
+mmcv-full --no-binary mmcv-full
